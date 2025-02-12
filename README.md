@@ -1,6 +1,6 @@
 # Snake_game_binary_brains
 
-This is a simple Snake game implemented in C++ using the `ncurses` library for terminal-based graphics.
+This is a simple Snake game implemented in C++ using the **ncurses** library for terminal-based graphics.
 
 ## Features
 - Classic snake movement (Up, Down, Left, Right)

@@ -1,155 +1,169 @@
 #include <iostream>
-#include <ncurses.h>
-#include <vector>
-#include <cstdlib>
+#include <conio.h>
+#include <windows.h>
 #include <ctime>
+#include <algorithm>
 
 using namespace std;
+
+const int WIDTH = 20;
+const int HEIGHT = 20;
+const int MAX_LENGTH = WIDTH * HEIGHT;
 
 class Point {
 public:
     int x, y;
     Point(int x = 0, int y = 0) : x(x), y(y) {}
+
+    bool operator==(const Point& p) const {
+        return x == p.x && y == p.y;
+    }
 };
 
 class SnakeGame {
 private:
-    int width, height, score;
-    vector<Point> snake;
-    Point food;
-    char direction;
+    enum Direction { STOP = 0, LEFT, RIGHT, UP, DOWN };
+    Direction dir;
     bool gameOver;
+    int score;
+    int highScore;
+    Point food;
+    Point snake[MAX_LENGTH];
+    int length;
+    char board[HEIGHT][WIDTH];
+
+    void Setup() {
+        gameOver = false;
+        dir = STOP;
+        length = 3;
+
+        int startX = WIDTH / 2;
+        int startY = HEIGHT / 2;
+
+        snake[0] = Point(startX, startY);
+        snake[1] = Point(startX - 1, startY);
+        snake[2] = Point(startX - 2, startY);
+
+        score = 0;
+        GenerateFood();
+    }
+
+    void DrawBoard() {
+        system("cls");
+
+        for (int i = 0; i < HEIGHT; ++i) {
+            for (int j = 0; j < WIDTH; ++j) {
+                if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1)
+                    board[i][j] = '#';
+                else
+                    board[i][j] = ' ';
+            }
+        }
+
+        for (int i = 0; i < length; i++)
+            board[snake[i].y][snake[i].x] = 'O';
+
+        board[snake[0].y][snake[0].x] = '@';
+        board[food.y][food.x] = 'F';
+
+        for (int i = 0; i < HEIGHT; ++i) {
+            for (int j = 0; j < WIDTH; ++j)
+                cout << board[i][j];
+            cout << endl;
+        }
+        cout << "Score: " << score << " | High Score: " << highScore << endl;
+    }
+
+    void Input() {
+        if (_kbhit()) {
+            switch (_getch()) {
+            case 'a': if (dir != RIGHT) dir = LEFT; break;
+            case 'd': if (dir != LEFT) dir = RIGHT; break;
+            case 'w': if (dir != DOWN) dir = UP; break;
+            case 's': if (dir != UP) dir = DOWN; break;
+            case 'x': gameOver = true; break;
+            }
+        }
+    }
+
+    void Logic() {
+        Point newHead = snake[0];
+        switch (dir) {
+            case LEFT: newHead.x--; break;
+            case RIGHT: newHead.x++; break;
+            case UP: newHead.y--; break;
+            case DOWN: newHead.y++; break;
+            default: return;
+        }
+
+        
+        if (newHead.x < 1 || newHead.x >= WIDTH - 1 || newHead.y < 1 || newHead.y >= HEIGHT - 1)
+            gameOver = true;
+
+        
+        for (int i = 1; i < length; i++) {
+            if (snake[i] == newHead)
+                gameOver = true;
+        }
+
+        
+        for (int i = length; i > 0; i--) {
+            snake[i] = snake[i - 1];
+        }
+        snake[0] = newHead;
+
+        
+        if (newHead == food) {
+            score++;
+            length++;
+            GenerateFood();
+        }
+
+        highScore = max(highScore, score);
+    }
+
+    void GenerateFood() {
+        do {
+            food.x = rand() % (WIDTH - 2) + 1;
+            food.y = rand() % (HEIGHT - 2) + 1;
+        } while (isOnSnake(food));
+    }
+
+    bool isOnSnake(const Point& p) {
+        for (int i = 0; i < length; i++) {
+            if (snake[i] == p)
+                return true;
+        }
+        return false;
+    }
 
 public:
-    SnakeGame(int w, int h) : width(w), height(h), score(0), direction('R'), gameOver(false) {
-        initializeGame();
+    SnakeGame() : highScore(0) {
+        srand(static_cast<unsigned>(time(0)));
     }
 
-    void initializeGame() {
-        snake.clear();
-        snake.push_back(Point(width / 2, height / 2));
-        snake.push_back(Point(width / 2 - 1, height / 2));
-        snake.push_back(Point(width / 2 - 2, height / 2));
-        generateFood();
-        score = 0;
-        direction = 'R';
-        gameOver = false;
-    }
-
-    void generateFood() {
-        srand(time(0));
-        int fx, fy;
-        bool valid;
-        do {
-            valid = true;
-            fx = rand() % (width - 2) + 1;
-            fy = rand() % (height - 2) + 1;
-            for (auto &s : snake) {
-                if (s.x == fx && s.y == fy) {
-                    valid = false;
-                    break;
-                }
+    void Run() {
+        while (true) {
+            Setup();
+            while (!gameOver) {
+                DrawBoard();
+                Input();
+                Logic();
+                Sleep(100);
             }
-        } while (!valid);
-        food = Point(fx, fy);
-    }
-
-    void processInput() {
-        int ch = getch();
-        switch (ch) {
-            case 'w': case 'W': case KEY_UP: if (direction != 'D') direction = 'U'; break;
-            case 's': case 'S': case KEY_DOWN: if (direction != 'U') direction = 'D'; break;
-            case 'a': case 'A': case KEY_LEFT: if (direction != 'R') direction = 'L'; break;
-            case 'd': case 'D': case KEY_RIGHT: if (direction != 'L') direction = 'R'; break;
-            case 'q': gameOver = true; break;
+            cout << "Game Over! Your score: " << score << endl;
+            cout << "Press 'r' to restart or 'q' to quit." << endl;
+            char choice;
+            do {
+                choice = _getch();
+            } while (choice != 'r' && choice != 'q');
+            if (choice == 'q') break;
         }
     }
-
-    void update() {
-        Point newHead = snake[0];
-        switch (direction) {
-            case 'U': newHead.y--; break;
-            case 'D': newHead.y++; break;
-            case 'L': newHead.x--; break;
-            case 'R': newHead.x++; break;
-        }
-
-        if (newHead.x == 0 || newHead.x == width - 1 || newHead.y == 0 || newHead.y == height - 1) {
-            gameOver = true;
-            return;
-        }
-
-        for (size_t i = 0; i < snake.size(); ++i) {
-            if (snake[i].x == newHead.x && snake[i].y == newHead.y) {
-                gameOver = true;
-                return;
-            }
-        }
-
-        snake.insert(snake.begin(), newHead);
-
-        if (newHead.x == food.x && newHead.y == food.y) {
-            score++;
-            generateFood();
-        } else {
-            snake.pop_back();
-        }
-    }
-
-    void render() {
-        clear();
-
-        for (int i = 0; i < width; ++i) mvprintw(0, i, "*");
-        for (int i = 0; i < width; ++i) mvprintw(height - 1, i, "*");
-        for (int i = 1; i < height - 1; ++i) mvprintw(i, 0, "|");
-        for (int i = 1; i < height - 1; ++i) mvprintw(i, width - 1, "|");
-
-        for (auto &s : snake) mvprintw(s.y, s.x, "O");
-        mvprintw(food.y, food.x, "F");
-        mvprintw(height, 0, "Score: %d", score);
-
-        refresh();
-    }
-
-    bool isGameOver() { return gameOver; }
-    int getScore() { return score; }
 };
 
 int main() {
-    initscr();
-    noecho();
-    curs_set(0);
-    keypad(stdscr, TRUE);
-    nodelay(stdscr, TRUE);
-
-    SnakeGame game(40, 20);
-
-    while (true) {
-        while (!game.isGameOver()) {
-            game.processInput();
-            game.update();
-            game.render();
-            napms(100);
-        }
-
-        endwin();
-        cout << "Game Over! Final Score: " << game.getScore() << endl;
-        cout << "Press 'R' to restart or any other key to exit..." << endl;
-        
-        char choice;
-        cin >> choice;
-        if (choice == 'R' || choice == 'r') {
-            initscr();
-            noecho();
-            curs_set(0);
-            keypad(stdscr, TRUE);
-            nodelay(stdscr, TRUE);
-            game = SnakeGame(40, 20);
-        } else {
-            break;
-        }
-    }
-
-    endwin();
+    SnakeGame game;
+    game.Run();
     return 0;
 }

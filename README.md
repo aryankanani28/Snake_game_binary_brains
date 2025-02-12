@@ -22,7 +22,7 @@ This project is a simple console-based Snake game written in C++. The player con
    - Initializes the snake's position and length.
    - Generates the first food item.
    
-  ![Screenshot 2025-02-13 035542](https://github.com/user-attachments/assets/7bf4a9de-d7cc-420b-b754-36504bf83739)
+   ![Screenshot 2025-02-13 035542](https://github.com/user-attachments/assets/7bf4a9de-d7cc-420b-b754-36504bf83739)
 
 
 2. **Rendering (`DrawBoard` method)**:

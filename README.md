@@ -1,91 +1,134 @@
-# Snake_game_binary_brains
+# Snake Game in C++
 
-This is a simple Snake game implemented in C++ using the **ncurses** library for terminal-based graphics.
+## Overview
+This game is designed to be executed on Windows OS.
+This project is a simple console-based Snake game written in C++. The player controls the snake using the keyboard, trying to eat food while avoiding collisions with the walls and itself. The game keeps track of the score and allows restarting after a game over.
 
-## Features
-- Classic snake movement (Up, Down, Left, Right)
-- Food generation and snake growth
-- Collision detection with walls and itself
-- Scoring system
-- Game restart functionality
-- Non-blocking keyboard input using `ncurses`
-- Smooth game speed control
+## Data Structures Used
+- **Class `Point`**: Represents coordinates (x, y) on the game board.
+- **Enum `Direction`**: Defines movement directions (STOP, LEFT, RIGHT, UP, DOWN).
+- **Array `snake[MAX_LENGTH]`**: Stores the snake's body positions.
+- **Class `SnakeGame`**: Manages the game logic, including movement, collisions, food generation, and score tracking.
 
-## Requirements
-To run this game, you need to have `ncurses` installed on your system. You can install it using:
+## Header Files Used
+- `<iostream>`: Handles input and output operations.
+- `<conio.h>`: Provides `_kbhit()` and `_getch()` functions for detecting key presses (Windows-specific).
+- `<windows.h>`: Enables `Sleep()` for delay functionality.
+- `<ctime>`: Used for random food generation.
+- `<algorithm>`: Utilized for updating the high score using `max()`.
 
-**MacOS (using Homebrew):**
-![Screenshot 2025-02-13 011117](https://github.com/user-attachments/assets/d7283ad6-600b-445e-9e40-5ec707c6ef06)
+## Game Logic
+1. **Setup (`Setup` method)**:
+   - Initializes the snake's position and length.
+   - Generates the first food item.
+   
+   ```cpp
+   void Setup() {
+       gameOver = false;
+       dir = STOP;
+       length = 3;
+       snake[0] = Point(WIDTH / 2, HEIGHT / 2);
+       GenerateFood();
+   }
+   ```
 
+2. **Rendering (`DrawBoard` method)**:
+   - Clears the console and draws the board.
+   - Displays the snake, food, and score.
+   
+   ```cpp
+   void DrawBoard() {
+       system("cls");
+       for (int i = 0; i < HEIGHT; ++i) {
+           for (int j = 0; j < WIDTH; ++j) {
+               if (i == 0 || i == HEIGHT - 1 || j == 0 || j == WIDTH - 1)
+                   cout << "#";
+               else if (Point(j, i) == snake[0])
+                   cout << "@";
+               else if (Point(j, i) == food)
+                   cout << "F";
+               else cout << " ";
+           }
+           cout << endl;
+       }
+       cout << "Score: " << score << endl;
+   }
+   ```
 
-## How to Compile and Run
-To compile the game, use the following command:
-![Screenshot 2025-02-13 011128](https://github.com/user-attachments/assets/53bd84c1-6296-4342-9c2e-fa4798c307ab)
+3. **User Input (`Input` method)**:
+   - Detects key presses (`WASD` keys to move, `X` to quit).
+   
+   ```cpp
+   void Input() {
+       if (_kbhit()) {
+           switch (_getch()) {
+               case 'a': if (dir != RIGHT) dir = LEFT; break;
+               case 'd': if (dir != LEFT) dir = RIGHT; break;
+               case 'w': if (dir != DOWN) dir = UP; break;
+               case 's': if (dir != UP) dir = DOWN; break;
+               case 'x': gameOver = true; break;
+           }
+       }
+   }
+   ```
 
+4. **Game Logic (`Logic` method)**:
+   - Moves the snake and checks for collisions.
+   - Increases length and score when food is eaten.
+   
+   ```cpp
+   void Logic() {
+       Point newHead = snake[0];
+       switch (dir) {
+           case LEFT: newHead.x--; break;
+           case RIGHT: newHead.x++; break;
+           case UP: newHead.y--; break;
+           case DOWN: newHead.y++; break;
+           default: return;
+       }
 
-Run the game:
-![image](https://github.com/user-attachments/assets/148aba08-8374-407d-a334-c90daec21cf0)
+       if (newHead.x < 1 || newHead.x >= WIDTH - 1 || newHead.y < 1 || newHead.y >= HEIGHT - 1)
+           gameOver = true;
 
+       for (int i = length; i > 0; i--) {
+           snake[i] = snake[i - 1];
+       }
+       snake[0] = newHead;
 
-## Code Explanation
-The game consists of a `SnakeGame` class that handles game logic, input processing, rendering, and collision detection.
+       if (newHead == food) {
+           score++;
+           length++;
+           GenerateFood();
+       }
+   }
+   ```
 
-### Header Files Used:
-- `#include <iostream>`: Used for standard input and output operations.
-- `#include <ncurses.h>`: Provides terminal-based graphical interface and input handling.
-- `#include <cstdlib>`: Includes functions like `rand()` for random number generation.
-- `#include <ctime>`: Used for seeding the random number generator with `time(0)`.
-- `#include <unistd.h>`: Provides `usleep()` for controlling the game speed.
+5. **Food Generation (`GenerateFood` method)**:
+   - Places food randomly, ensuring it is not on the snake.
+   
+   ```cpp
+   void GenerateFood() {
+       do {
+           food.x = rand() % (WIDTH - 2) + 1;
+           food.y = rand() % (HEIGHT - 2) + 1;
+       } while (isOnSnake(food));
+   }
+   ```
 
-### Data Structures Used:
-- **Point Class**: Represents a coordinate (x, y) in the game.
-![Screenshot 2025-02-13 010102](https://github.com/user-attachments/assets/4e54e6b1-759e-4c11-9ba9-e7d6052d3894)
+6. **Game Loop (`Run` method)**:
+   - Repeats drawing, handling input, and updating logic.
+   - Prompts the user to restart or quit after game over.
 
+## How to Play
+- Use `W`, `A`, `S`, `D` to move the snake.
+- Eat food (`F`) to grow longer and score points.
+- Avoid hitting walls (`#`) and yourself.
+- Press `X` to quit during gameplay.
+- After game over, press `R` to restart or `Q` to quit.
 
-- **SnakeGame Class**:
-  - Manages game logic including the snake, food, movement, and rendering.
-  - Uses an array of `Point` objects to represent the snake's body.
-
-### Game Logic:
-- **Initialization (`initializeGame()`)**:
-  - Starts the game with a default snake length of 3 at the center.
-  - Generates food at a random position ensuring it does not overlap with the snake.
-
-- **Food Generation (`generateFood()`)**:
-  - Uses `rand()` to position the food at a valid location inside the game boundaries.
-
-- **Processing Input (`processInput()`)**:
-  - Reads keyboard input to change the snake's direction.
-  - Uses `ncurses` functions to handle non-blocking input.
-
-- **Updating the Game (`update()`)**:
-  - Moves the snake in the current direction.
-  - Checks for collisions with walls or itself (ends the game if true).
-  - If the snake eats food, it grows, and new food is generated.
-  - Prevents the snake from exceeding the maximum allowed length.
-
-- **Rendering the Game (`render()`)**:
-  - Clears the screen and redraws the game state (snake, food, boundaries, score).
-  - Displays the current score at the bottom of the screen.
-  - Ensures smooth frame rendering to maintain a playable experience.
-
-### Main Loop:
-- Runs continuously, processing input, updating the game state, and rendering the screen.
-- Ends when the snake collides with a wall or itself.
-- After game over, prompts the user to restart or exit.
-
-## Controls
-| Key         | Action       |
-|------------|-------------|
-| `W` / `↑`  | Move Up     |
-| `S` / `↓`  | Move Down   |
-| `A` / `←`  | Move Left   |
-| `D` / `→`  | Move Right  |
-| `Q`        | Quit the game |
-
-## Game Over and Restart
-When the game ends, the user is prompted with the final score and can press `R` to restart or any other key to exit.
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+## Compilation & Execution
+```sh
+ g++ snake_game.cpp -o snake_game.exe
+ ./snake_game.exe
+```
 

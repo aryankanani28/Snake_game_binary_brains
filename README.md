@@ -39,7 +39,7 @@ The game consists of a `SnakeGame` class that handles game logic, input processi
 
 ### Data Structures Used:
 - **Point Class**: Represents a coordinate (x, y) in the game.
-  ![Screenshot 2025-02-13 010102](https://github.com/user-attachments/assets/4e54e6b1-759e-4c11-9ba9-e7d6052d3894)
+![Screenshot 2025-02-13 010102](https://github.com/user-attachments/assets/4e54e6b1-759e-4c11-9ba9-e7d6052d3894)
 
 
 - **SnakeGame Class**:

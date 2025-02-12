@@ -14,26 +14,18 @@ This is a simple Snake game implemented in C++ using the `ncurses` library for t
 ## Requirements
 To run this game, you need to have `ncurses` installed on your system. You can install it using:
 
-**Ubuntu/Debian:**
-```sh
-sudo apt-get install libncurses5-dev libncursesw5-dev
-```
-
 **MacOS (using Homebrew):**
-```sh
-brew install ncurses
-```
+![Screenshot 2025-02-13 011117](https://github.com/user-attachments/assets/d7283ad6-600b-445e-9e40-5ec707c6ef06)
+
 
 ## How to Compile and Run
 To compile the game, use the following command:
-```sh
-g++ snake_game.cpp -o snake_game -lncurses
-```
+![Screenshot 2025-02-13 011128](https://github.com/user-attachments/assets/53bd84c1-6296-4342-9c2e-fa4798c307ab)
+
 
 Run the game:
-```sh
-./snake_game
-```
+![image](https://github.com/user-attachments/assets/148aba08-8374-407d-a334-c90daec21cf0)
+
 
 ## Code Explanation
 The game consists of a `SnakeGame` class that handles game logic, input processing, rendering, and collision detection.

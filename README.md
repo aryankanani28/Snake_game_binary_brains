@@ -128,7 +128,7 @@ This project is a simple console-based Snake game written in C++. The player con
 
 ## Compilation & Execution
 ```sh
- g++ snake_game.cpp -o snake_game.exe
- ./snake_game.exe
+ g++ -o snake_game snake_game.cpp
+ ./snake_game
 ```
 

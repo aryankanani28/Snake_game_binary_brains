@@ -131,4 +131,16 @@ This project is a simple console-based Snake game written in C++. The player con
  g++ -o snake_game snake_game.cpp
  ./snake_game
 ```
+## Credits
+-https://youtu.be/E_-lMZDi7Uw?si=fzUip6IYLdX8sGQy
+-https://youtu.be/W1e5wO7XR2w?si=xD7aR7Ws5peGUr2x
+-https://www.geeksforgeeks.org/
+
+## Contributions
+-Aryan Kanani 
+   Code Developement and README file
+-Shivam Thanki
+   Code Developement and Rectification of errors
+-Arjunsinh Vaghela
+   Code Developement and OPtimization of code
 
